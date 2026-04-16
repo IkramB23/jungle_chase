@@ -76,7 +76,7 @@ JUNGLE.Entities = {
     },
 
     /* ==========================================
-       Create animal from loaded GLB container
+       Create animal from loaded GLB/glTF container
        ========================================== */
     _createGLBMesh: function (key, container, scene) {
         var cfg = JUNGLE.Config.ANIMALS[key];
@@ -116,15 +116,46 @@ JUNGLE.Entities = {
             childMeshes.forEach(function (m) { sg.addShadowCaster(m); });
         }
 
-        // Play first animation (idle/walk) if available
-        if (instance.animationGroups && instance.animationGroups.length > 0) {
-            instance.animationGroups[0].start(true);
-        }
+        // Build animation map by name keywords
+        var animMap = { idle: null, walk: null, run: null, attack: null, death: null };
+        var groups = instance.animationGroups || [];
+        groups.forEach(function (ag) {
+            var n = ag.name.toLowerCase();
+            if (n.indexOf('idle') !== -1) animMap.idle = ag;
+            else if (n.indexOf('walk') !== -1 && !animMap.walk) animMap.walk = ag;
+            else if (n.indexOf('run') !== -1 || n.indexOf('gallop') !== -1) animMap.run = ag;
+            else if (n.indexOf('attack') !== -1 || n.indexOf('bite') !== -1 || n.indexOf('kick') !== -1) animMap.attack = ag;
+            else if (n.indexOf('death') !== -1 || n.indexOf('die') !== -1) animMap.death = ag;
+        });
+        // Fallback: if no walk, use first non-idle; if no idle, use first
+        if (!animMap.walk && groups.length > 1) animMap.walk = groups[1];
+        if (!animMap.idle && groups.length > 0) animMap.idle = groups[0];
+        if (!animMap.run) animMap.run = animMap.walk;
 
-        // Store animation groups on root for later access
-        root._glbAnimationGroups = instance.animationGroups || [];
+        // Stop all, play idle
+        groups.forEach(function (ag) { ag.stop(); });
+        if (animMap.idle) animMap.idle.start(true);
+
+        // Store on root
+        root._animMap = animMap;
+        root._allAnimGroups = groups;
+        root._currentAnim = 'idle';
 
         return root;
+    },
+
+    /* ==========================================
+       Switch animation on a mesh root
+       ========================================== */
+    _playAnim: function (root, animName) {
+        if (!root._animMap || root._currentAnim === animName) return;
+        var target = root._animMap[animName];
+        if (!target) return;
+        // Stop all animations
+        root._allAnimGroups.forEach(function (ag) { ag.stop(); });
+        var loop = (animName !== 'attack' && animName !== 'death');
+        target.start(loop);
+        root._currentAnim = animName;
     },
 
     /* ==========================================
@@ -262,8 +293,8 @@ JUNGLE.Entities = {
         var moveDir = BABYLON.Vector3.Zero();
         if (inputMap["ArrowUp"]) moveDir.addInPlace(forward);
         if (inputMap["ArrowDown"]) moveDir.subtractInPlace(forward);
-        if (inputMap["ArrowLeft"]) moveDir.addInPlace(right);
-        if (inputMap["ArrowRight"]) moveDir.subtractInPlace(right);
+        if (inputMap["ArrowLeft"]) moveDir.subtractInPlace(right);
+        if (inputMap["ArrowRight"]) moveDir.addInPlace(right);
 
         if (moveDir.lengthSquared() > 0.001) {
             moveDir.normalize();
@@ -280,8 +311,14 @@ JUNGLE.Entities = {
             p.mesh.rotation.y += diff * dt * p.cfg.turnSpeed * 3;
             // Un-hide on move
             if (p.isHidden) this.unhidePlayer();
+            // Animation: run if sprinting, walk otherwise
+            this._playAnim(p.mesh, sprinting ? 'run' : 'walk');
         } else {
             p.velocity = BABYLON.Vector3.Lerp(p.velocity, BABYLON.Vector3.Zero(), dt * 6);
+            // Animation: idle when not moving
+            if (p.velocity.lengthSquared() < 0.1) {
+                this._playAnim(p.mesh, 'idle');
+            }
         }
 
         // Apply velocity
@@ -343,16 +380,10 @@ JUNGLE.Entities = {
 
         // Determine which AI animals to spawn
         var predatorKeys = Object.keys(JUNGLE.Config.ANIMALS).filter(function (k) {
-            var t = JUNGLE.Config.ANIMALS[k].type;
-            return t === 'predator';
+            return JUNGLE.Config.ANIMALS[k].type === 'predator';
         });
         var preyKeys = Object.keys(JUNGLE.Config.ANIMALS).filter(function (k) {
-            var t = JUNGLE.Config.ANIMALS[k].type;
-            return t === 'prey';
-        });
-        var waterKeys = Object.keys(JUNGLE.Config.ANIMALS).filter(function (k) {
-            var t = JUNGLE.Config.ANIMALS[k].type;
-            return t === 'water' || t === 'water_predator';
+            return JUNGLE.Config.ANIMALS[k].type === 'prey';
         });
 
         // Spawn predators
@@ -366,34 +397,13 @@ JUNGLE.Entities = {
             var rk = preyKeys[j % preyKeys.length];
             self.spawnOneAI(rk, 'prey', half, scene);
         }
-
-        // Spawn water animals (near river)
-        for (var w = 0; w < JUNGLE.Config.NUM_WATER_ANIMALS; w++) {
-            var wk = waterKeys[w % waterKeys.length];
-            self.spawnOneAI(wk, 'water', half, scene);
-        }
     },
 
     spawnOneAI: function (key, role, half, scene) {
         var mesh = this.createAnimalMesh(key, scene);
         var cfg = JUNGLE.Config.ANIMALS[key];
-        var x, z;
-
-        if (role === 'water') {
-            // Spawn near river
-            var rp = JUNGLE.Environment.riverPath;
-            if (rp.length > 0) {
-                var rIdx = Math.floor(Math.random() * rp.length);
-                x = rp[rIdx].x + (Math.random() - 0.5) * 10;
-                z = rp[rIdx].z + (Math.random() - 0.5) * 10;
-            } else {
-                x = (Math.random() - 0.5) * half;
-                z = (Math.random() - 0.5) * half;
-            }
-        } else {
-            x = (Math.random() - 0.5) * 2 * half;
-            z = (Math.random() - 0.5) * 2 * half;
-        }
+        var x = (Math.random() - 0.5) * 2 * half;
+        var z = (Math.random() - 0.5) * 2 * half;
 
         mesh.position.set(x, 0, z);
 
@@ -430,7 +440,7 @@ JUNGLE.Entities = {
             var distToPlayer = toPlayer.length();
 
             // Determine state based on role vs player mode
-            var isPredatorAI = (ai.role === 'predator' || ai.role === 'water');
+            var isPredatorAI = (ai.role === 'predator');
             var detectionRange = JUNGLE.Config.AI_DETECTION_RANGE;
 
             if (playerMode === 'prey') {
@@ -467,26 +477,7 @@ JUNGLE.Entities = {
                     break;
             }
 
-            // Water animals slow on land
             var effectiveSpeed = ai.speed;
-            if (ai.role === 'water') {
-                var nearWater = JUNGLE.Environment.isNearRiver(pos.x, pos.z, JUNGLE.Config.RIVER_WIDTH * 1.5);
-                effectiveSpeed = nearWater ? (ai.cfg.waterSpeed || ai.speed) : ai.speed * 0.5;
-                // Tend towards river if on land
-                if (!nearWater && ai.state === 'wander') {
-                    var rp = JUNGLE.Environment.riverPath;
-                    if (rp.length > 0) {
-                        // Find closest river point
-                        var closest = rp[0];
-                        var bestDist = BABYLON.Vector3.DistanceSquared(pos, rp[0]);
-                        for (var ri = 1; ri < rp.length; ri += 3) {
-                            var d2 = BABYLON.Vector3.DistanceSquared(pos, rp[ri]);
-                            if (d2 < bestDist) { bestDist = d2; closest = rp[ri]; }
-                        }
-                        steer = self.steerSeek(pos, closest, effectiveSpeed);
-                    }
-                }
-            }
 
             // Apply steering
             steer.y = 0;
@@ -510,6 +501,14 @@ JUNGLE.Entities = {
                 while (diff > Math.PI) diff -= Math.PI * 2;
                 while (diff < -Math.PI) diff += Math.PI * 2;
                 ai.mesh.rotation.y += diff * dt * ai.cfg.turnSpeed * 2;
+            }
+
+            // AI animation: chase/flee → run, wander → walk, stopped → idle
+            if (ai.velocity.lengthSquared() > 0.5) {
+                var animName = (ai.state === 'chase' || ai.state === 'flee') ? 'run' : 'walk';
+                self._playAnim(ai.mesh, animName);
+            } else {
+                self._playAnim(ai.mesh, 'idle');
             }
         });
     },

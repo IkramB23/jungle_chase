@@ -104,7 +104,7 @@ JUNGLE.Game = {
             var self = this;
             JUNGLE.Entities.aiAnimals.forEach(function (ai) {
                 if (!ai.alive) return;
-                if (ai.role !== 'predator' && ai.role !== 'water') return;
+                if (ai.role !== 'predator') return;
                 var d = BABYLON.Vector3.Distance(pp, ai.mesh.position);
                 if (d < catchDist) {
                     self.playerCaught(scene);
@@ -286,7 +286,7 @@ JUNGLE.Game = {
             if (!ai.alive) return;
             var mx = (ai.mesh.position.x / S + 0.5) * W;
             var my = (0.5 - ai.mesh.position.z / S) * H;
-            ctx.fillStyle = (ai.role === 'predator' || ai.role === 'water') ? '#e74c3c' : '#2ecc71';
+            ctx.fillStyle = (ai.role === 'predator') ? '#e74c3c' : '#2ecc71';
             ctx.beginPath();
             ctx.arc(mx, my, 3, 0, Math.PI * 2);
             ctx.fill();
@@ -349,7 +349,7 @@ JUNGLE.Game = {
             // Prey mode: warn of approaching predators
             JUNGLE.Entities.aiAnimals.forEach(function (ai) {
                 if (!ai.alive) return;
-                if (ai.role !== 'predator' && ai.role !== 'water') return;
+                if (ai.role !== 'predator') return;
                 var d = BABYLON.Vector3.Distance(pp, ai.mesh.position);
                 if (d < alertDist && d < closestDist) {
                     closest = ai;

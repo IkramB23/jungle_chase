@@ -38,8 +38,7 @@ JUNGLE.Config = {
 
     // Entity counts
     NUM_AI_PREDATORS: 3,
-    NUM_AI_PREY: 6,
-    NUM_WATER_ANIMALS: 3,
+    NUM_AI_PREY: 8,
 
     // Environment counts
     NUM_TREES: 70,
@@ -58,85 +57,161 @@ JUNGLE.Config = {
 
     // Animal catalogue
     ANIMALS: {
-        lion: {
-            name: "Lion",
-            emoji: "🦁",
-            type: "predator",
-            speed: 5.0,
-            turnSpeed: 3.0,
-            size: 1.2,
-            color: [0.85, 0.65, 0.13],
-            model: "Lion.glb",
-            description: "Roi de la jungle. Puissant et rapide.",
-            strength: 5,
-            agility: 3
-        },
-        tiger: {
-            name: "Tigre",
-            emoji: "🐅",
+        wolf: {
+            name: "Loup",
+            emoji: "🐺",
             type: "predator",
             speed: 5.5,
             turnSpeed: 3.5,
-            size: 1.1,
-            color: [0.9, 0.55, 0.1],
-            model: "Tiger.glb",
-            description: "Féroce et agile. Chasseur silencieux.",
+            size: 1.5,
+            color: [0.45, 0.45, 0.50],
+            model: "Wolf.gltf",
+            description: "Chasseur en meute. Rapide et rusé.",
             strength: 4,
             agility: 5
         },
-        gazelle: {
-            name: "Gazelle",
+        husky: {
+            name: "Husky",
+            emoji: "🐕",
+            type: "predator",
+            speed: 5.0,
+            turnSpeed: 3.0,
+            size: 1.3,
+            color: [0.70, 0.70, 0.75],
+            model: "Husky.gltf",
+            description: "Endurant et tenace. Ne lâche jamais sa proie.",
+            strength: 3,
+            agility: 4
+        },
+        fox: {
+            name: "Renard",
+            emoji: "🦊",
+            type: "predator",
+            speed: 5.2,
+            turnSpeed: 4.0,
+            size: 1.2,
+            color: [0.90, 0.45, 0.10],
+            model: "Fox.gltf",
+            description: "Agile et malin. Attaque par surprise.",
+            strength: 3,
+            agility: 5
+        },
+        stag: {
+            name: "Cerf",
             emoji: "🦌",
             type: "prey",
             speed: 6.0,
             turnSpeed: 4.0,
-            size: 0.8,
-            color: [0.76, 0.60, 0.42],
-            model: "Stag.glb",
-            description: "Rapide et gracieuse. Experte en évasion.",
+            size: 1.5,
+            color: [0.65, 0.45, 0.25],
+            model: "Stag.gltf",
+            description: "Majestueux et rapide. Expert en évasion.",
+            strength: 2,
+            agility: 5
+        },
+        deer: {
+            name: "Biche",
+            emoji: "🦌",
+            type: "prey",
+            speed: 5.8,
+            turnSpeed: 4.2,
+            size: 1.3,
+            color: [0.72, 0.55, 0.35],
+            model: "Deer.gltf",
+            description: "Gracieuse et vive. Difficile à attraper.",
             strength: 1,
             agility: 5
         },
-        zebra: {
-            name: "Zèbre",
-            emoji: "🦓",
+        horse: {
+            name: "Cheval",
+            emoji: "🐴",
             type: "prey",
-            speed: 5.5,
-            turnSpeed: 3.5,
-            size: 1.0,
+            speed: 6.5,
+            turnSpeed: 3.0,
+            size: 1.8,
+            color: [0.55, 0.35, 0.15],
+            model: "Horse.gltf",
+            description: "Le plus rapide. Puissant en ligne droite.",
+            strength: 3,
+            agility: 3
+        },
+        horse_white: {
+            name: "Cheval Blanc",
+            emoji: "🐴",
+            type: "prey",
+            speed: 6.2,
+            turnSpeed: 3.2,
+            size: 1.8,
             color: [0.95, 0.95, 0.95],
-            model: "Zebra.glb",
-            description: "Endurant et résistant. Court-il est zébré !",
-            strength: 2,
+            model: "Horse_White.gltf",
+            description: "Élégant et endurant. Galope sans fin.",
+            strength: 3,
             agility: 4
         },
-        crocodile: {
-            name: "Crocodile",
-            emoji: "🐊",
-            type: "water_predator",
-            speed: 3.0,
-            waterSpeed: 6.0,
-            turnSpeed: 2.0,
-            size: 1.3,
-            color: [0.18, 0.42, 0.14],
-            model: "Crocodile.glb",
-            description: "Terreur des rivières. Mortel dans l'eau.",
+        cow: {
+            name: "Vache",
+            emoji: "🐄",
+            type: "prey",
+            speed: 4.0,
+            turnSpeed: 2.5,
+            size: 1.8,
+            color: [0.90, 0.88, 0.85],
+            model: "Cow.gltf",
+            description: "Lente mais résistante. Difficile à abattre.",
+            strength: 4,
+            agility: 1
+        },
+        alpaca: {
+            name: "Alpaga",
+            emoji: "🦙",
+            type: "prey",
+            speed: 4.5,
+            turnSpeed: 3.5,
+            size: 1.4,
+            color: [0.92, 0.87, 0.78],
+            model: "Alpaca.gltf",
+            description: "Doux et rusé. Se cache facilement.",
+            strength: 1,
+            agility: 4
+        },
+        donkey: {
+            name: "Âne",
+            emoji: "🫏",
+            type: "prey",
+            speed: 4.2,
+            turnSpeed: 3.0,
+            size: 1.5,
+            color: [0.55, 0.50, 0.45],
+            model: "Donkey.gltf",
+            description: "Têtu et endurant. Ne se laisse pas faire.",
+            strength: 3,
+            agility: 2
+        },
+        bull: {
+            name: "Taureau",
+            emoji: "🐂",
+            type: "prey",
+            speed: 5.0,
+            turnSpeed: 2.5,
+            size: 2.0,
+            color: [0.35, 0.20, 0.10],
+            model: "Bull.gltf",
+            description: "Puissant et imposant. Charge quand il est en colère.",
             strength: 5,
             agility: 2
         },
-        hippo: {
-            name: "Hippopotame",
-            emoji: "🦛",
-            type: "water",
-            speed: 2.5,
-            waterSpeed: 4.5,
-            turnSpeed: 1.5,
-            size: 1.8,
-            color: [0.55, 0.47, 0.52],
-            model: "Hippopotamus.glb",
-            description: "Massif et territorial. Ne pas déranger !",
-            strength: 5,
-            agility: 1
+        shiba: {
+            name: "Shiba Inu",
+            emoji: "🐕",
+            type: "prey",
+            speed: 5.5,
+            turnSpeed: 4.5,
+            size: 1.1,
+            color: [0.90, 0.65, 0.30],
+            model: "ShibaInu.gltf",
+            description: "Petit mais agile. Esquive tout !",
+            strength: 1,
+            agility: 5
         }
     }
 };
@@ -175,8 +250,8 @@ JUNGLE.UI = {
 
         Object.keys(animals).forEach(function (key) {
             var a = animals[key];
-            var isPredator = a.type === 'predator' || a.type === 'water_predator';
-            var isPrey = a.type === 'prey' || a.type === 'water';
+            var isPredator = a.type === 'predator';
+            var isPrey = a.type === 'prey';
             var available = (mode === 'predator' && isPredator) || (mode === 'prey' && isPrey);
 
             var card = document.createElement('div');
@@ -186,8 +261,8 @@ JUNGLE.UI = {
                 card.addEventListener('click', function () { self.selectAnimal(key); });
             }
 
-            var badgeClass = isPredator ? 'badge-predator' : (a.type === 'water' ? 'badge-water' : 'badge-prey');
-            var typeName = isPredator ? 'Prédateur' : (a.type === 'water' ? 'Aquatique' : 'Proie');
+            var badgeClass = isPredator ? 'badge-predator' : 'badge-prey';
+            var typeName = isPredator ? 'Prédateur' : 'Proie';
 
             card.innerHTML =
                 '<span class="animal-emoji">' + a.emoji + '</span>' +

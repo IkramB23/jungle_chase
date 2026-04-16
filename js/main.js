@@ -23,17 +23,19 @@ JUNGLE.Main = {
         scene.collisionsEnabled = true;
         this.scene = scene;
 
-        // Camera
+        // Camera - low angle behind player (3rd person)
         var camera = new BABYLON.ArcRotateCamera("cam",
-            -Math.PI / 2, Math.PI / 3.2, 30,
+            -Math.PI / 2, Math.PI / 2.5, 25,
             new BABYLON.Vector3(0, 0, 0), scene);
-        camera.lowerRadiusLimit = 10;
-        camera.upperRadiusLimit = 60;
-        camera.lowerBetaLimit = 0.3;
+        camera.lowerRadiusLimit = 15;
+        camera.upperRadiusLimit = 45;
+        camera.lowerBetaLimit = 0.4;
         camera.upperBetaLimit = Math.PI / 2.2;
         camera.wheelPrecision = 15;
         camera.panningSensibility = 0;
         camera.attachControl(canvas, true);
+        // Remove keyboard input so arrow keys don't move the camera
+        camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         this.camera = camera;
 
         // Build the environment
@@ -53,12 +55,9 @@ JUNGLE.Main = {
             if (JUNGLE.Game.state === 'playing') {
                 JUNGLE.Game.update(dt, self.inputMap, self.camera, scene);
 
-                // Camera follows player
+                // Camera locked to player
                 if (JUNGLE.Entities.player) {
-                    var target = JUNGLE.Entities.player.mesh.position;
-                    self.camera.target = BABYLON.Vector3.Lerp(
-                        self.camera.target, target, dt * 5
-                    );
+                    self.camera.target.copyFrom(JUNGLE.Entities.player.mesh.position);
                 }
             }
 
