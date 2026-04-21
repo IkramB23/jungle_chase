@@ -30,6 +30,7 @@ JUNGLE.Config = {
 
     // Model paths
     MODEL_PATH: "assets/models/",
+    BONUS_MODEL: "Star Coin.glb",
     ENV_MODEL_PATH: "assets/textures/",
     ENV_MODELS: {
         tree: "Nature.glb",
@@ -38,7 +39,7 @@ JUNGLE.Config = {
 
     // Entity counts
     NUM_AI_PREDATORS: 3,
-    NUM_AI_PREY: 8,
+    NUM_AI_PREY: 6,
 
     // Environment counts
     NUM_TREES: 70,

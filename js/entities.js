@@ -19,7 +19,8 @@ JUNGLE.Entities = {
         var animalKeys = Object.keys(animals);
         var envModels = JUNGLE.Config.ENV_MODELS || {};
         var envKeys = Object.keys(envModels);
-        var total = animalKeys.length + envKeys.length;
+        var bonusModel = JUNGLE.Config.BONUS_MODEL;
+        var total = animalKeys.length + envKeys.length + (bonusModel ? 1 : 0);
         var loaded = 0;
 
         if (total === 0) { if (onComplete) onComplete(); return; }
@@ -62,6 +63,34 @@ JUNGLE.Entities = {
                 }
             );
         });
+
+        if (bonusModel) {
+            var bonusCandidates = [bonusModel];
+            var encodedBonusModel = bonusModel.replace(/ /g, "%20");
+            if (encodedBonusModel !== bonusModel) bonusCandidates.push(encodedBonusModel);
+
+            function tryLoadBonus(idx) {
+                if (idx >= bonusCandidates.length) {
+                    console.warn("Failed to load bonus model from candidates:", bonusCandidates);
+                    onLoadDone();
+                    return;
+                }
+                var candidate = bonusCandidates[idx];
+                BABYLON.SceneLoader.LoadAssetContainer(
+                    JUNGLE.Config.MODEL_PATH, candidate, scene,
+                    function (container) {
+                        self._modelContainers["bonus_item"] = container;
+                        onLoadDone();
+                    },
+                    null,
+                    function () {
+                        tryLoadBonus(idx + 1);
+                    }
+                );
+            }
+
+            tryLoadBonus(0);
+        }
     },
 
     /* ==========================================

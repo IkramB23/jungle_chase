@@ -130,7 +130,7 @@ JUNGLE.Game = {
             var d = BABYLON.Vector3.Distance(pp, b.position);
             if (d < 4) {
                 b.collected = true;
-                b.mesh.isVisible = false;
+                b.node.setEnabled(false);
                 self3.score += JUNGLE.Config.SCORE_BONUS_PICKUP;
                 self3.showMessage("⭐ +" + JUNGLE.Config.SCORE_BONUS_PICKUP + " pts", 1);
             }
@@ -216,6 +216,20 @@ JUNGLE.Game = {
     updateHUD: function () {
         document.getElementById('hud-score-value').textContent = this.score;
         document.getElementById('hud-timer-value').textContent = this.formatTime(this.timeLeft);
+
+        var preyHud = document.getElementById('hud-prey-left');
+        var preyValue = document.getElementById('hud-prey-left-value');
+        if (preyHud && preyValue) {
+            if (this.mode === 'predator') {
+                var preyLeft = JUNGLE.Entities.aiAnimals.filter(function (a) {
+                    return a.role === 'prey' && a.alive;
+                }).length;
+                preyValue.textContent = preyLeft;
+                preyHud.style.display = 'block';
+            } else {
+                preyHud.style.display = 'none';
+            }
+        }
 
         // Timer flash when low
         var timerEl = document.getElementById('hud-timer-value');

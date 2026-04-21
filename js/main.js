@@ -38,9 +38,6 @@ JUNGLE.Main = {
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         this.camera = camera;
 
-        // Build the environment
-        JUNGLE.Environment.create(scene);
-
         // Input
         this.setupInput(scene);
 
@@ -109,6 +106,9 @@ JUNGLE.Main = {
                 loaderText.textContent = 'Chargement des modèles 3D... ' + Math.round(pct) + '%';
             },
             function () {
+                // Build environment only after all GLB models are ready
+                JUNGLE.Environment.create(self.scene);
+
                 fill.style.width = '100%';
                 loaderText.textContent = 'Prêt !';
                 setTimeout(function () {

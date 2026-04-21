@@ -315,6 +315,8 @@ body {
 .hud-value { font-family: 'Bangers', cursive; font-size: 1.5rem; letter-spacing: 1px; }
 .hud-score .hud-value { color: #f0c040; }
 .hud-timer .hud-value { color: #fff; }
+.hud-prey-left { display: none; }
+.hud-prey-left .hud-value { color: #2ecc71; }
 .hud-lives .hud-value { font-size: 1.6rem; letter-spacing: 4px; }
 
 .hud-bottom-center {

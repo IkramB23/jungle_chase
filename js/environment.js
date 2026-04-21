@@ -383,25 +383,59 @@ JUNGLE.Environment = {
     /* ---------- Bonus Items ---------- */
     createBonusItems: function (scene) {
         var half = JUNGLE.Config.TERRAIN_SIZE / 2 - 15;
-
-        var template = BABYLON.MeshBuilder.CreateSphere("bonus", { diameter: 1.2, segments: 8 }, scene);
-        var bm = new BABYLON.StandardMaterial("bonusMat", scene);
-        bm.diffuseColor = new BABYLON.Color3(1, 0.85, 0.1);
-        bm.emissiveColor = new BABYLON.Color3(0.6, 0.5, 0.0);
-        template.material = bm;
-        template.isVisible = false;
+        var bonusContainer = JUNGLE.Entities._modelContainers["bonus_item"];
+        if (!bonusContainer) {
+            console.warn("Bonus model not loaded: Star Coin bonuses were not created.");
+            return;
+        }
 
         for (var i = 0; i < JUNGLE.Config.NUM_BONUS_ITEMS; i++) {
             var bx = (Math.random() - 0.5) * 2 * half;
             var bz = (Math.random() - 0.5) * 2 * half;
             if (this.isInRiver(bx, bz)) { i--; continue; }
 
-            var inst = template.createInstance("bonus_" + i);
-            inst.position.set(bx, 1.8, bz);
+            var bonusNode = null;
+            if (bonusContainer) {
+                try {
+                    var instance = bonusContainer.instantiateModelsToScene(function (name) {
+                        return "bonus_" + i + "_" + name;
+                    });
+                    bonusNode = new BABYLON.TransformNode("bonus_" + i, scene);
+                    instance.rootNodes.forEach(function (rn) {
+                        rn.parent = bonusNode;
+                    });
+
+                    var childMeshes = bonusNode.getChildMeshes(false);
+                    if (childMeshes.length > 0) {
+                        var min = new BABYLON.Vector3(1e8, 1e8, 1e8);
+                        var max = new BABYLON.Vector3(-1e8, -1e8, -1e8);
+                        childMeshes.forEach(function (m) {
+                            m.refreshBoundingInfo();
+                            var bi = m.getBoundingInfo();
+                            min = BABYLON.Vector3.Minimize(min, bi.boundingBox.minimumWorld);
+                            max = BABYLON.Vector3.Maximize(max, bi.boundingBox.maximumWorld);
+                        });
+                        var h = max.y - min.y;
+                        if (h > 0.01) {
+                            var scale = 1.2 / h;
+                            bonusNode.scaling = new BABYLON.Vector3(scale, scale, scale);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Bonus GLB instance failed:", e);
+                    bonusNode = null;
+                }
+            }
+
+            if (!bonusNode) {
+                continue;
+            }
+
+            bonusNode.position.set(bx, 1.8, bz);
 
             this.bonusItems.push({
                 position: new BABYLON.Vector3(bx, 0, bz),
-                mesh: inst,
+                node: bonusNode,
                 collected: false
             });
         }
@@ -411,8 +445,8 @@ JUNGLE.Environment = {
             var t = performance.now() * 0.001;
             JUNGLE.Environment.bonusItems.forEach(function (b) {
                 if (!b.collected) {
-                    b.mesh.rotation.y = t * 2;
-                    b.mesh.position.y = 1.8 + Math.sin(t * 3 + b.position.x) * 0.4;
+                    b.node.rotation.y = t * 2;
+                    b.node.position.y = 1.8 + Math.sin(t * 3 + b.position.x) * 0.4;
                 }
             });
         });
@@ -460,11 +494,11 @@ JUNGLE.Environment = {
         var half = JUNGLE.Config.TERRAIN_SIZE / 2 - 15;
         this.bonusItems.forEach(function (b) {
             b.collected = false;
-            b.mesh.isVisible = true;
+            b.node.setEnabled(true);
             b.position.x = (Math.random() - 0.5) * 2 * half;
             b.position.z = (Math.random() - 0.5) * 2 * half;
-            b.mesh.position.x = b.position.x;
-            b.mesh.position.z = b.position.z;
+            b.node.position.x = b.position.x;
+            b.node.position.z = b.position.z;
         });
         this.hidingSpots.forEach(function (h) {
             h.cooldownUntil = 0;
